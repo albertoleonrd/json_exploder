@@ -68,9 +68,9 @@ def save_json_file(file_path: str, data: List[Dict], overwrite: bool = False) ->
         sys.exit(1)
 
 
-def explode_json(data: Dict, explode_field: str, common_fields: List[str]) -> List[Dict]:
+def explode_single_object(data: Dict, explode_field: str, common_fields: List[str]) -> List[Dict]:
     """
-    Explota un campo de tipo lista en un JSON, generando registros planares.
+    Explota un campo de tipo lista en un objeto JSON, generando registros planares.
 
     Args:
         data: Diccionario que contiene los datos JSON.
@@ -86,21 +86,19 @@ def explode_json(data: Dict, explode_field: str, common_fields: List[str]) -> Li
     """
     # Verificar que el campo a explotar exista
     if explode_field not in data:
-        print(f"Error: El campo '{explode_field}' no existe en el JSON de entrada.")
-        sys.exit(1)
+        print(f"Error: El campo '{explode_field}' no existe en uno de los objetos del JSON de entrada.")
+        return []
     
     # Verificar que el campo a explotar sea una lista
     if not isinstance(data[explode_field], list):
-        print(f"Error: El campo '{explode_field}' no es una lista.")
-        sys.exit(1)
+        print(f"Error: El campo '{explode_field}' no es una lista en uno de los objetos del JSON de entrada.")
+        return []
     
     # Crear diccionario con los campos comunes
     common_data = {}
     for field in common_fields:
         if field in data:
             common_data[field] = data[field]
-        else:
-            print(f"Advertencia: El campo común '{field}' no existe en el JSON de entrada.")
     
     # Realizar el explode
     result = []
@@ -113,6 +111,47 @@ def explode_json(data: Dict, explode_field: str, common_fields: List[str]) -> Li
         exploded_item = common_data.copy()
         exploded_item.update(item)
         result.append(exploded_item)
+    
+    return result
+
+
+def explode_json(data: Union[Dict, List], explode_field: str, common_fields: List[str]) -> List[Dict]:
+    """
+    Explota un campo de tipo lista en un JSON, generando registros planares.
+    Puede manejar tanto objetos únicos como colecciones (listas) de objetos.
+
+    Args:
+        data: Diccionario o lista que contiene los datos JSON.
+        explode_field: Nombre del campo que contiene la lista a explotar.
+        common_fields: Lista de campos comunes que deben heredarse.
+
+    Returns:
+        Lista de diccionarios con los registros explotados.
+    """
+    result = []
+    
+    # Si los datos son una lista, procesar cada objeto por separado
+    if isinstance(data, list):
+        for obj in data:
+            if isinstance(obj, dict):
+                result.extend(explode_single_object(obj, explode_field, common_fields))
+            else:
+                print("Advertencia: Se encontró un elemento no diccionario en el JSON de entrada. Se omitirá.")
+        
+        if not result:
+            print(f"Error: No se encontraron objetos válidos con el campo '{explode_field}' en el JSON de entrada.")
+            sys.exit(1)
+    
+    # Si los datos son un diccionario único, procesarlo directamente
+    elif isinstance(data, dict):
+        result = explode_single_object(data, explode_field, common_fields)
+        if not result:
+            print(f"Error: El campo '{explode_field}' no existe o no es válido en el JSON de entrada.")
+            sys.exit(1)
+    
+    else:
+        print("Error: El JSON de entrada no es un objeto ni una lista de objetos válido.")
+        sys.exit(1)
     
     return result
 
@@ -167,7 +206,7 @@ def main() -> None:
     args = parse_arguments()
     
     # Convertir la lista de campos comunes a una lista
-    common_fields = [field.strip() for field in args.common_fields.split(',')]
+    common_fields = [field.strip() for field in args.common_fields.split(',') if field.strip()]
     
     # Cargar datos del archivo JSON
     data = load_json_file(args.input)
@@ -175,6 +214,7 @@ def main() -> None:
     # Realizar el explode
     try:
         result = explode_json(data, args.explode, common_fields)
+        print(f"Se generaron {len(result)} registros explotados correctamente.")
     except Exception as e:
         print(f"Error al procesar el JSON: {str(e)}")
         sys.exit(1)
