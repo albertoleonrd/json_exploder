@@ -18,7 +18,7 @@ JSON Exploder es una herramienta en Python diseñada para transformar estructura
 No se requiere instalación específica. Simplemente clone o descargue este repositorio:
 
 ```bash
-git clone https://github.com/usuario/json_exploder.git
+git clone https://github.com/albertoleonrd/json_exploder.git
 cd json_exploder
 ```
 

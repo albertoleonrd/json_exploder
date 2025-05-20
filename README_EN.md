@@ -14,7 +14,7 @@ Installation
 No specific installation is required. Simply clone or download this repository:
 
 bash
-git clone https://github.com/user/json_exploder.git
+git clone https://github.com/albertoleonrd/json_exploder.git
 cd json_exploder
 Usage Example
 Given an input.json file with an individual object:
