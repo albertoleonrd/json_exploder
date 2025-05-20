@@ -1,0 +1,9 @@
+{
+    "edad": 18,
+    "curso": "4º ESO",
+    "alumnos": [
+      {"nombre": "Jose", "nota": 8.5},
+      {"nombre": "Luis", "nota": 7.2},
+      {"nombre": "Ana", "nota": 9.0}
+    ]
+  }

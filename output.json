@@ -1,0 +1,20 @@
+[
+  {
+    "edad": 18,
+    "curso": "4º ESO",
+    "nombre": "Jose",
+    "nota": 8.5
+  },
+  {
+    "edad": 18,
+    "curso": "4º ESO",
+    "nombre": "Luis",
+    "nota": 7.2
+  },
+  {
+    "edad": 18,
+    "curso": "4º ESO",
+    "nombre": "Ana",
+    "nota": 9.0
+  }
+]
